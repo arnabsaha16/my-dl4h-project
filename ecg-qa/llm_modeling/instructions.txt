@@ -1,1 +1,0 @@
-This is the folder in which all the python programs used to run for running QA experiments,  and LLM Modeling.
