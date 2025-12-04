@@ -411,6 +411,7 @@ def main(cfg: DictConfig, override_args=None):
                     #        raise e
                     # LLM model
                     # llm_answer = query_llm(prompt)
+                    tokenizer, model = init_llm(cfg)
                     llm_answer = query_llm(prompt, tokenizer, model)
                     # LLM model call end
 
@@ -532,4 +533,5 @@ def cli_main():
 
 if __name__ == "__main__":
     cli_main()
+
 
