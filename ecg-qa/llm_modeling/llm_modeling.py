@@ -29,14 +29,24 @@ from omegaconf import OmegaConf, open_dict, DictConfig
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 # Initialize Hugging Face model
-tokenizer = AutoTokenizer.from_pretrained(cfg.llm_model_name)
-model = AutoModelForCausalLM.from_pretrained(
-    cfg.llm_model_name,
-    device_map="auto",
-    torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32
-)
+#tokenizer = AutoTokenizer.from_pretrained(cfg.llm_model_name)
+#model = AutoModelForCausalLM.from_pretrained(
+#    cfg.llm_model_name,
+#    device_map="auto",
+#    torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32
+#)
+def init_llm(cfg):
+    model_name = cfg.llm_model_name  # can be Llama or Gemma or any HF model
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name,
+        device_map="auto",
+        torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32
+    )
+    return tokenizer, model
 
-def query_llm(prompt: str) -> str:
+#def query_llm(prompt: str) -> str:
+def query_llm(prompt: str, tokenizer, model) -> str:
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
     outputs = model.generate(
         **inputs,
@@ -400,7 +410,8 @@ def main(cfg: DictConfig, override_args=None):
                     #    except Exception as e:
                     #        raise e
                     # LLM model
-                    llm_answer = query_llm(prompt)
+                    # llm_answer = query_llm(prompt)
+                    llm_answer = query_llm(prompt, tokenizer, model)
                     # LLM model call end
 
                     # postprocess
@@ -521,3 +532,4 @@ def cli_main():
 
 if __name__ == "__main__":
     cli_main()
+
