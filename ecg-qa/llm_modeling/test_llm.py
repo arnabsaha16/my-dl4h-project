@@ -1,4 +1,4 @@
-import torch
+import torch, argparse
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 def init_llm(model_name: str):
@@ -41,3 +41,4 @@ if __name__ == "__main__":
 
     print(f"Model used: {args.model_name}")
     print("Model output:", answer)
+
