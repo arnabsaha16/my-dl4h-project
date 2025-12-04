@@ -7,7 +7,7 @@ import time
 import pandas as pd
 
 import wandb
-import openai
+#import openai # Removed
 
 from fairseq_signals.dataclass.initialize import add_defaults, hydra_init
 from fairseq_signals.dataclass.utils import omegaconf_no_object_check
@@ -23,6 +23,31 @@ import hydra
 from hydra.core.hydra_config import HydraConfig
 import torch
 from omegaconf import OmegaConf, open_dict, DictConfig
+
+# Adjustments for Llama-3-1-8B and Gemma-2-2B LLM models 
+
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+# Initialize Hugging Face model
+tokenizer = AutoTokenizer.from_pretrained(cfg.llm_model_name)
+model = AutoModelForCausalLM.from_pretrained(
+    cfg.llm_model_name,
+    device_map="auto",
+    torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32
+)
+
+def query_llm(prompt: str) -> str:
+    inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+    outputs = model.generate(
+        **inputs,
+        max_new_tokens=256,
+        temperature=0.0,
+        do_sample=False
+    )
+    return tokenizer.decode(outputs[0], skip_special_tokens=True).lower().strip()
+
+# Adjustments end
+
 
 logger = logging.getLogger("fairseq_cli.llm_expr")
 
@@ -351,29 +376,32 @@ def main(cfg: DictConfig, override_args=None):
                     if len(answer) == 0:
                         answer = {"none"}
 
-                    while True:
-                        try:
-                            if "instruct" in cfg.openai_model:
-                                completion = openai.Completion.create(
-                                    model=cfg.openai_model,
-                                    prompt=prompt,
-                                    temperature=0,
-                                )
-                                llm_answer = completion["choices"][0].text.strip().lower()
-                            else:
-                                completion = openai.ChatCompletion.create(
-                                    model=cfg.openai_model,
-                                    messages=[{"role": "user", "content": prompt}],
-                                    temperature=0,
-                                )
-                                llm_answer = completion["choices"][0]["message"]["content"].lower()
-                            break
-                        except openai.error.RateLimitError as e:
-                            time.sleep(1)
-                        except openai.error.APIError as e:
-                            time.sleep(1)
-                        except Exception as e:
-                            raise e
+                    #while True:
+                    #    try:
+                    #        if "instruct" in cfg.	_model:
+                    #            completion = openai.Completion.create(
+                    #                model=cfg.openai_model,
+                    #                prompt=prompt,
+                    #                temperature=0,
+                    #            )
+                    #            llm_answer = completion["choices"][0].text.strip().lower()
+                    #        else:
+                    #            completion = openai.ChatCompletion.create(
+                    #                model=cfg.openai_model,
+                    #                messages=[{"role": "user", "content": prompt}],
+                    #                temperature=0,
+                    #            )
+                    #            llm_answer = completion["choices"][0]["message"]["content"].lower()
+                    #        break
+                    #    except openai.error.RateLimitError as e:
+                    #        time.sleep(1)
+                    #    except openai.error.APIError as e:
+                    #        time.sleep(1)
+                    #    except Exception as e:
+                    #        raise e
+                    # LLM model
+                    llm_answer = query_llm(prompt)
+                    # LLM model call end
 
                     # postprocess
                     options_pattern = "("
