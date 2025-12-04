@@ -6,7 +6,7 @@ hydra:
 
 # Hugging Face LLM settings
 llm_provider: hf
-llm_model_name: meta-llama/Llama-3.1-8B-Instruct
+llm_model_name: meta-llama/Llama-3.1-8B
 # Alternative: google/gemma-2-2b
 
 # Dataset choice: ptbxl or mimic-iv-ecg
@@ -42,3 +42,4 @@ task:
 
 criterion:
   _name: cross_entropy
+
