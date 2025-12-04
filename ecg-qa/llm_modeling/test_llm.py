@@ -22,9 +22,22 @@ def query_llm(prompt: str, tokenizer, model) -> str:
 
 if __name__ == "__main__":
     # Change this to either Llama or Gemma
-    model_name = "meta-llama/Llama-3.1-8B"   # or "google/gemma-2-2b"
-    tokenizer, model = init_llm(model_name)
+    #model_name = "meta-llama/Llama-3.1-8B"   # or "google/gemma-2-2b"
+    #tokenizer, model = init_llm(model_name)
+
+    #prompt = "Question: Does this ECG show atrial fibrillation?\nOptions: atrial fibrillation, myocardial infarction, none\nAnswer:"
+    #answer = query_llm(prompt, tokenizer, model)
+
+    #print("Model output:", answer)
+    parser = argparse.ArgumentParser(description="Run a test prompt on Llama or Gemma")
+    parser.add_argument("--model_name", type=str, required=True,
+                        help="Hugging Face model name, e.g. meta-llama/Llama-3.1-8B or google/gemma-2-2b")
+    args = parser.parse_args()
+
+    tokenizer, model = init_llm(args.model_name)
 
     prompt = "Question: Does this ECG show atrial fibrillation?\nOptions: atrial fibrillation, myocardial infarction, none\nAnswer:"
     answer = query_llm(prompt, tokenizer, model)
+
+    print(f"Model used: {args.model_name}")
     print("Model output:", answer)
