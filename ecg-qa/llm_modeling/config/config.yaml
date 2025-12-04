@@ -4,11 +4,41 @@ hydra:
   run:
     dir: .
 
-defaults:
-    - task: null
-    - model: null
-    - criterion: cross_entropy
-    - optimizer: null
-    - lr_scheduler: fixed
-    - tokenizer: null
-    - common_eval: null
+# Hugging Face LLM settings
+llm_provider: hf
+llm_model_name: meta-llama/Llama-3.1-8B-Instruct
+# Alternative: google/gemma-2-2b
+
+# Dataset choice: ptbxl or mimic-iv-ecg
+ptbxl_or_mimic_iv: ptbxl
+
+dataset:
+  valid_subset: test
+  batch_size: 8
+  max_tokens: null
+  num_workers: 4
+  skip_invalid_size_inputs_valid_test: true
+  required_batch_size_multiple: 1
+  data_buffer_size: 10
+
+common:
+  seed: 42
+  log_interval: 50
+  log_format: simple
+  log_file: null
+  no_progress_bar: false
+  wandb_project: null
+  wandb_entity: null
+  reset_logging: true
+
+common_eval:
+  path: /checkpoints/ecg_model.pt
+  model_overrides: "{}"
+  results_path: ./results
+  checkpoint_suffix: ""
+
+task:
+  data: /datasets/ptbxl
+
+criterion:
+  _name: cross_entropy
